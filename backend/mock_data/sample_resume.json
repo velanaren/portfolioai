@@ -1,0 +1,31 @@
+{
+  "success": true,
+  "data": {
+    "personal": {
+      "name": "Alex Rivera",
+      "email": "alex.rivera@email.com", 
+      "phone": "+1-555-123-4567",
+      "location": "San Francisco, CA"
+    },
+    "raw_text": "Senior Full Stack Developer with 5+ years of experience building scalable web applications and distributed systems. Proven track record of delivering high-quality software solutions and leading development teams.\n\nProfessional Experience:\n- Led development of a microservices-based e-commerce platform serving 100k+ daily users, reducing load times by 40% through optimization\n- Architected and implemented CI/CD pipelines using GitHub Actions and AWS, improving deployment frequency by 3x\n- Developed RESTful APIs handling 1M+ daily requests using FastAPI and Node.js\n- Mentored junior developers and conducted technical interviews for engineering candidates\n- Migrated legacy monolithic application to modern microservices architecture using Docker and Kubernetes\n\nTechnical Skills:\n- Frontend: React, TypeScript, Redux, HTML5/CSS3, Webpack\n- Backend: Python, Node.js, FastAPI, Express.js\n- Databases: PostgreSQL, MongoDB, Redis\n- DevOps: Docker, Kubernetes, AWS, CI/CD\n- Version Control: Git, GitHub\n- Testing: Jest, PyTest, Cypress",
+    "skills": [
+      "AWS",
+      "CI/CD",
+      "Docker",
+      "Express.js",
+      "FastAPI",
+      "Git",
+      "JavaScript",
+      "Kubernetes",
+      "MongoDB",
+      "Node.js",
+      "PostgreSQL",
+      "Python",
+      "React",
+      "Redis",
+      "TypeScript"
+    ],
+    "word_count": 450
+  },
+  "message": "Resume parsed successfully"
+}
