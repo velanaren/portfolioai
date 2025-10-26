@@ -4,6 +4,9 @@ import shutil
 from uuid import uuid4
 from ..services.parser import parse_resume
 from ..models.schemas import ParseResponse, HealthResponse
+from ..services.ai_service import generate_bio
+
+
 
 router = APIRouter()
 
@@ -92,3 +95,22 @@ async def upload_resume(file: UploadFile = File(...)):
         # Ensure temporary file is deleted in case of errors
         if 'unique_filename' in locals() and os.path.exists(unique_filename):
             os.remove(unique_filename)
+
+@router.post("/generate-bio")
+async def generate_bio_endpoint(resume_data: dict):
+    """
+    Generate professional bio using Groq AI.
+    Free tier: 14,400 requests/day
+    """
+    try:
+        bio = generate_bio(resume_data)
+        return {
+            "success": True,
+            "bio": bio,
+            "message": "Bio generated successfully"
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate bio: {str(e)}"
+        )

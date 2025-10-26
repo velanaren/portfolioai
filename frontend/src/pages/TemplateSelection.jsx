@@ -1,7 +1,7 @@
 import { useState, Suspense } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
-import MinimalTemplate from '../components/templates/Minimaltemplate';
+import MinimalTemplate from '../components/templates/MinimalTemplate';
 import ModernTemplate from '../components/templates/ModernTemplate';
 import LoadingSpinner from '../components/LoadingSpinner';
 import './template-selection.css';
@@ -38,14 +38,16 @@ export default function TemplateSelection() {
     setPreviewTemplate(null);
   };
 
+
   const handleContinue = () => {
-    navigate('/editor', {
-      state: {
-        template: selectedTemplate,
-        resumeData
-      }
+    navigate('/editor', { 
+      state: { 
+        templateName: selectedTemplate,
+        resumeData: resumeData 
+      } 
     });
   };
+  
 
   return (
     <div className="min-h-screen pb-24">

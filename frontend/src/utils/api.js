@@ -43,3 +43,31 @@ export async function checkHealth() {
     throw error;
   }
 }
+
+/**
+ * Generate AI bio from resume data using Groq
+ * @param {Object} resumeData - Resume data object
+ * @returns {Promise<Object>} Generated bio
+ */
+export async function generateBio(resumeData) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/generate-bio`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(resumeData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to generate bio');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Bio generation error:', error);
+    throw error;
+  }
+}
