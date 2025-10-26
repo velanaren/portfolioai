@@ -30,6 +30,7 @@ export default function Editor() {
   const [activeTemplate, setActiveTemplate] = useState(templateName);
   const [skills, setSkills] = useState(resumeData.skills || []);
   const [newSkill, setNewSkill] = useState('');
+  
 
   const handleInputChange = (field, value) => {
     setEditedData({
@@ -221,6 +222,7 @@ export default function Editor() {
           <Button
             variant="primary"
             onClick={handleContinue}
+            className="w-full py-3 md:py-4 text-base md:text-lg"
           >
             Continue to Cover Letter
           </Button>

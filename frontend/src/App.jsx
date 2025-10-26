@@ -3,7 +3,7 @@ import Landing from './pages/Landing';
 import Upload from './pages/upload';
 import TemplateSelection from './pages/TemplateSelection';
 import Editor from './pages/Editor';
-
+import CoverLetter from './pages/CoverLetter';
 
 function App() {
   return (
@@ -13,7 +13,8 @@ function App() {
         <Route path="/upload" element={<Upload />} />
         <Route path="/templates" element={<TemplateSelection />} />
         <Route path="/editor" element={<Editor />} />
-         </Routes>
+        <Route path="/cover-letter" element={<CoverLetter />} />
+      </Routes>
     </BrowserRouter>
   );
 }

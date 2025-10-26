@@ -5,6 +5,7 @@ from uuid import uuid4
 from ..services.parser import parse_resume
 from ..models.schemas import ParseResponse, HealthResponse
 from ..services.ai_service import generate_bio
+from ..services.ai_service import generate_cover_letter
 
 
 
@@ -113,4 +114,25 @@ async def generate_bio_endpoint(resume_data: dict):
         raise HTTPException(
             status_code=500,
             detail=f"Failed to generate bio: {str(e)}"
+        )
+
+@router.post("/generate-cover-letter")
+async def generate_cover_letter_endpoint(request: dict):
+    """
+    Generate a tailored cover letter using Groq AI.
+    Expects 'portfolioData' and 'jobDescription' in request body.
+    """
+    try:
+        portfolio_data = request.get("portfolioData")
+        job_description = request.get("jobDescription")
+        letter = generate_cover_letter(portfolio_data, job_description)
+        return {
+            "success": True,
+            "coverLetter": letter,
+            "message": "Cover letter generated successfully"
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate cover letter: {str(e)}"
         )

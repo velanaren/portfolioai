@@ -90,3 +90,39 @@ def enhance_experience(experience_text: str) -> str:
         return "Led development initiatives and delivered high-quality solutions."
     
     return experience_text.strip()
+
+def generate_cover_letter(portfolio_data: Dict, job_description: str) -> str:
+    """
+    Generate customized cover letter using Groq AI.
+    """
+    try:
+        name = portfolio_data.get("personal", {}).get("name", "Candidate")
+        skills = ", ".join(portfolio_data.get("skills", [])[:5])
+        bio = portfolio_data.get("raw_text", "")
+        prompt = f"""
+Write a personalized cover letter for the following position:
+{job_description}
+
+Applicant: {name}
+Key skills: {skills}
+Bio/expertise: {bio[:250]}
+
+Instructions:
+- Address the job requirements clearly
+- Show enthusiasm for the role
+- Highlight matching experience, skills, and culture fit
+- 3 paragraphs (max 400 words), professional tone
+- No bullet points
+"""
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {"role": "system", "content": "You are an expert cover letter writer."},
+                {"role": "user", "content": prompt},
+            ],
+            max_tokens=400,
+            temperature=0.7,
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        return f"Dear Hiring Manager,\n\nI am excited to apply for this opportunity. My skills and background make me a strong fit. I look forward to contributing to your team.\n\nBest regards,\n{name}"

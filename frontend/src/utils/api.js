@@ -71,3 +71,17 @@ export async function generateBio(resumeData) {
     throw error;
   }
 }
+
+export async function generateCoverLetter(portfolioData, jobDescription) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/generate-cover-letter`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ portfolioData, jobDescription }),
+    });
+    if (!response.ok) throw new Error("Failed to generate cover letter");
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
+}
