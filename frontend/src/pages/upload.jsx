@@ -23,9 +23,15 @@ export default function Upload() {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    
     const droppedFile = e.dataTransfer.files[0];
-    if (droppedFile && ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'].includes(droppedFile.type)) {
+    if (
+      droppedFile &&
+      [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain'
+      ].includes(droppedFile.type)
+    ) {
       setFile(droppedFile);
       setError(null);
     } else {
@@ -50,13 +56,21 @@ export default function Upload() {
   const handleParse = async () => {
     setUploading(true);
     setError(null);
-    
+
     try {
       const result = await uploadResume(file);
-      
+
       if (result.success === true) {
-        setParsedData(result.data);
+        const data = result.data;
+        // Normalize arrays for display safety:
+        data.skills = Array.isArray(data.skills) ? data.skills : [];
+        data.work_experience = Array.isArray(data.work_experience) ? data.work_experience : [];
+        data.projects = Array.isArray(data.projects) ? data.projects : [];
+        data.education = Array.isArray(data.education) ? data.education : [];
+        setParsedData(data);
         setFile(null);
+        window.lastResumeDebug = data; // For browser debugging
+        console.log('Resume debug:', data);
       } else {
         setError(result.error || 'Failed to parse resume');
       }
@@ -78,8 +92,8 @@ export default function Upload() {
         <div
           className={`border-2 border-dashed rounded-lg p-16 text-center cursor-pointer
             transition-all duration-300 ease-in-out
-            ${isDragging 
-              ? 'border-blue-500 bg-blue-50 shadow-lg' 
+            ${isDragging
+              ? 'border-blue-500 bg-blue-50 shadow-lg'
               : 'border-gray-300 hover:border-gray-400 hover:shadow-lg hover:bg-gray-50'
             }`}
           onDragOver={(e) => {
@@ -110,8 +124,8 @@ export default function Upload() {
               <div>
                 <p className="font-semibold mb-1">{file.name}</p>
                 <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium
-                  ${file.size > 4 * 1024 * 1024 
-                    ? 'bg-yellow-100 text-yellow-800' 
+                  ${file.size > 4 * 1024 * 1024
+                    ? 'bg-yellow-100 text-yellow-800'
                     : 'bg-green-100 text-green-800'
                   } transition-colors duration-300`}>
                   {formatFileSize(file.size)}
@@ -144,15 +158,38 @@ export default function Upload() {
             <div className="text-5xl mb-3 animate-bounce">✅</div>
             <p className="text-2xl font-semibold text-green-600 glow-green">Resume parsed successfully!</p>
           </div>
-          
+
           <div className="bg-white rounded-lg p-6 mb-8 shadow-sm">
             <h3 className="font-semibold mb-5 text-lg">Detected Information:</h3>
             <div className="space-y-3">
-              <p className="mb-2"><span className="font-medium text-gray-700">Name:</span> {parsedData.personal.name}</p>
-              <p className="mb-2"><span className="font-medium text-gray-700">Email:</span> {parsedData.personal.email}</p>
-              <p className="mb-2"><span className="font-medium text-gray-700">Phone:</span> {parsedData.personal.phone}</p>
+              <p className="mb-2"><span className="font-medium text-gray-700">Name:</span> {parsedData.personal?.name}</p>
+              <p className="mb-2"><span className="font-medium text-gray-700">Email:</span> {parsedData.personal?.email}</p>
+              <p className="mb-2"><span className="font-medium text-gray-700">Phone:</span> {parsedData.personal?.phone}</p>
               <p><span className="font-medium text-gray-700">Skills:</span> {parsedData.skills.length} skills detected</p>
+              <p><span className="font-medium text-gray-700">Experience:</span> {parsedData.work_experience.length} entries</p>
+              <p><span className="font-medium text-gray-700">Projects:</span> {parsedData.projects.length} projects</p>
+              <p><span className="font-medium text-gray-700">Education:</span> {parsedData.education.length} entries</p>
+              {parsedData.work_experience.length > 0 && (
+                <>
+                  <h4 className="font-semibold mt-4">Experience Sample:</h4>
+                  <pre className="text-xs bg-gray-100 p-2 rounded">
+                    {JSON.stringify(parsedData.work_experience[0], null, 2)}
+                  </pre>
+                </>
+              )}
+              {parsedData.education.length > 0 && (
+                <>
+                  <h4 className="font-semibold mt-4">Education Sample:</h4>
+                  <pre className="text-xs bg-gray-100 p-2 rounded">
+                    {JSON.stringify(parsedData.education[0], null, 2)}
+                  </pre>
+                </>
+              )}
             </div>
+            <details>
+              <summary className="cursor-pointer mt-4">Show Full Parsed Data (DEV)</summary>
+              <pre className="text-xs bg-gray-100 p-2 rounded">{JSON.stringify(parsedData, null, 2)}</pre>
+            </details>
           </div>
 
           <Button

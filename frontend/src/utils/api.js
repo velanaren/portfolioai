@@ -1,11 +1,10 @@
-// API configuration
 const API_BASE_URL = 'http://localhost:8000/api';
 
 /**
- * Upload resume file and get parsed data
- * @param {File} file - Resume file (PDF, DOCX, TXT)
- * @returns {Promise<Object>} Parsed resume data
- */
+* Upload resume file and get parsed data
+* @param {File} file - Resume file (PDF, DOCX, TXT)
+* @returns {Promise} Parsed resume data
+*/
 export async function uploadResume(file) {
   try {
     const formData = new FormData();
@@ -16,13 +15,13 @@ export async function uploadResume(file) {
       body: formData,
     });
 
+    const data = await response.json();  // always parse!
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || 'Upload failed');
+      throw new Error(data.detail || data.error || 'Upload failed');
     }
 
-    const data = await response.json();
-    return data;
+    return data; // full object with .data field
   } catch (error) {
     console.error('Upload error:', error);
     throw error;
@@ -30,9 +29,9 @@ export async function uploadResume(file) {
 }
 
 /**
- * Check if API is healthy
- * @returns {Promise<Object>} Health status
- */
+* Check if API is healthy
+* @returns {Promise} Health status
+*/
 export async function checkHealth() {
   try {
     const response = await fetch(`${API_BASE_URL}/health`);
@@ -45,10 +44,10 @@ export async function checkHealth() {
 }
 
 /**
- * Generate AI bio from resume data using Groq
- * @param {Object} resumeData - Resume data object
- * @returns {Promise<Object>} Generated bio
- */
+* Generate AI bio from resume data using Groq
+* @param {Object} resumeData - Resume data object
+* @returns {Promise} Generated bio
+*/
 export async function generateBio(resumeData) {
   try {
     const response = await fetch(`${API_BASE_URL}/generate-bio`, {
@@ -59,12 +58,12 @@ export async function generateBio(resumeData) {
       body: JSON.stringify(resumeData),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || 'Failed to generate bio');
+      throw new Error(data.detail || data.error || 'Failed to generate bio');
     }
 
-    const data = await response.json();
     return data;
   } catch (error) {
     console.error('Bio generation error:', error);
@@ -79,8 +78,10 @@ export async function generateCoverLetter(portfolioData, jobDescription) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ portfolioData, jobDescription }),
     });
-    if (!response.ok) throw new Error("Failed to generate cover letter");
-    return await response.json();
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Failed to generate cover letter");
+    return data;
   } catch (error) {
     throw error;
   }

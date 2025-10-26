@@ -70,6 +70,78 @@ export default function ModernTemplate({ data }) {
         </div>
       )}
 
+      {/* Work Experience Section */}
+{data.work_experience && data.work_experience.length > 0 && (
+  <section className="max-w-4xl mx-auto px-4 py-12">
+    <div className="bg-white rounded-xl shadow-lg p-8">
+      <h2 className="text-3xl font-bold text-center mb-6">Work Experience</h2>
+      <div className="space-y-6">
+        {data.work_experience.map((job, idx) => (
+          <div key={idx}>
+            <h3 className="font-semibold text-xl text-gray-900">
+              {job.job_title} at {job.employer}
+            </h3>
+            <p className="italic text-gray-500 mb-2">
+              {job.start_date} - {job.end_date || 'Present'}
+            </p>
+            <p className="whitespace-pre-wrap text-gray-700 leading-relaxed">{job.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+{/* Projects Section */}
+{data.projects && data.projects.length > 0 && (
+  <section className="max-w-4xl mx-auto px-4 py-12">
+    <div className="bg-white rounded-xl shadow-lg p-8">
+      <h2 className="text-3xl font-bold text-center mb-6">Projects</h2>
+      <div className="space-y-6">
+        {data.projects.map((project, idx) => (
+          <div key={idx}>
+            <h3 className="font-semibold text-xl text-gray-900">
+              {project.title} {project.year && `(${project.year})`}
+            </h3>
+            {project.tech_stack && (
+              <p className="mb-1 font-medium text-gray-800">
+                Tech Stack: {project.tech_stack}
+              </p>
+            )}
+            <p className="whitespace-pre-wrap text-gray-700 leading-relaxed">{project.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+{/* Education Section */}
+{data.education && data.education.length > 0 && (
+  <section className="max-w-4xl mx-auto px-4 py-12">
+    <div className="bg-white rounded-xl shadow-lg p-8">
+      <h2 className="text-3xl font-bold text-center mb-6">Education</h2>
+      <div className="space-y-6">
+        {data.education.map((edu, idx) => (
+          <div key={idx}>
+            <h3 className="font-semibold text-xl text-gray-900">
+              {edu.degree} &mdash; {edu.institution}
+            </h3>
+            <p className="italic text-gray-500 mb-2">
+              {edu.start_date} - {edu.end_date || 'Present'}
+            </p>
+            <p className="text-gray-700 leading-relaxed">
+              {edu.major && <span><strong>Major:</strong> {edu.major} </span>}
+              {edu.gpa && <span><strong>GPA:</strong> {edu.gpa}</span>}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+
       {/* Contact Section */}
       <div className="max-w-4xl mx-auto px-4 py-12">
         <div className="bg-white rounded-xl shadow-lg p-8">

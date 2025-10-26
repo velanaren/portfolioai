@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -6,7 +6,6 @@ import MinimalTemplate from '../components/templates/MinimalTemplate';
 import ModernTemplate from '../components/templates/ModernTemplate';
 import { generateBio } from '../utils/api';
 import { exportAsHTML } from '../utils/export';
-
 
 export default function Editor() {
   const location = useLocation();
@@ -25,13 +24,20 @@ export default function Editor() {
     );
   }
 
-  const [editedData, setEditedData] = useState(resumeData);
+  // Ensure all arrays always exist
+  const [editedData, setEditedData] = useState({
+    ...resumeData,
+    skills: Array.isArray(resumeData.skills) ? resumeData.skills : [],
+    work_experience: Array.isArray(resumeData.work_experience) ? resumeData.work_experience : [],
+    projects: Array.isArray(resumeData.projects) ? resumeData.projects : [],
+    education: Array.isArray(resumeData.education) ? resumeData.education : []
+  });
   const [generating, setGenerating] = useState(false);
-  const [activeTemplate, setActiveTemplate] = useState(templateName);
-  const [skills, setSkills] = useState(resumeData.skills || []);
+  const [activeTemplate] = useState(templateName);
+  const [skills, setSkills] = useState(editedData.skills || []);
   const [newSkill, setNewSkill] = useState('');
-  
 
+  // Personal info
   const handleInputChange = (field, value) => {
     setEditedData({
       ...editedData,
@@ -42,6 +48,7 @@ export default function Editor() {
     });
   };
 
+  // AI Bio generator
   const handleGenerateBio = async () => {
     try {
       setGenerating(true);
@@ -59,36 +66,44 @@ export default function Editor() {
     }
   };
 
+  // Skills handlers
   const handleAddSkill = () => {
-    if (!newSkill.trim()) return; // Ignore empty values
-    if (
-      editedData.skills &&
-      editedData.skills.some(
-        (skill) => skill.toLowerCase() === newSkill.trim().toLowerCase()
-      )
-    )
-      return; // Ignore duplicates
-  
-    setEditedData({
-      ...editedData,
-      skills: [...(editedData.skills || []), newSkill.trim()],
-    });
+    if (!newSkill.trim()) return;
+    if (skills.some(skill => skill.toLowerCase() === newSkill.trim().toLowerCase())) return;
+    const updatedSkills = [...skills, newSkill.trim()];
+    setSkills(updatedSkills);
+    setEditedData({ ...editedData, skills: updatedSkills });
     setNewSkill('');
   };
 
   const handleRemoveSkill = (index) => {
     const updatedSkills = skills.filter((_, i) => i !== index);
     setSkills(updatedSkills);
-    setEditedData({
-      ...editedData,
-      skills: updatedSkills
-    });
+    setEditedData({ ...editedData, skills: updatedSkills });
+  };
+
+  // Experience handlers (edit only, not add/remove for simplicity)
+  const handleExperienceChange = (idx, field, value) => {
+    const updated = [...editedData.work_experience];
+    updated[idx][field] = value;
+    setEditedData({ ...editedData, work_experience: updated });
+  };
+
+  const handleProjectChange = (idx, field, value) => {
+    const updated = [...editedData.projects];
+    updated[idx][field] = value;
+    setEditedData({ ...editedData, projects: updated });
+  };
+
+  const handleEducationChange = (idx, field, value) => {
+    const updated = [...editedData.education];
+    updated[idx][field] = value;
+    setEditedData({ ...editedData, education: updated });
   };
 
   const handleExport = () => {
     exportAsHTML(activeTemplate, editedData);
   };
-  
 
   const handleContinue = () => {
     navigate('/cover-letter', {
@@ -98,7 +113,7 @@ export default function Editor() {
 
   return (
     <div className="flex h-screen relative">
-      {/* Left Sidebar */}
+      {/* Sidebar */}
       <div className="w-1/3 bg-white border-r overflow-y-auto p-6">
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-2">Edit Portfolio</h1>
@@ -115,36 +130,36 @@ export default function Editor() {
               type="text"
               placeholder="Name"
               className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={editedData.personal.name || ''}
+              value={editedData.personal?.name || ''}
               onChange={(e) => handleInputChange('name', e.target.value)}
             />
             <input
               type="email"
               placeholder="Email"
               className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={editedData.personal.email || ''}
+              value={editedData.personal?.email || ''}
               onChange={(e) => handleInputChange('email', e.target.value)}
             />
             <input
               type="tel"
               placeholder="Phone"
               className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={editedData.personal.phone || ''}
+              value={editedData.personal?.phone || ''}
               onChange={(e) => handleInputChange('phone', e.target.value)}
             />
           </div>
         </div>
 
-        {/* Bio Section */}
+        {/* Professional Bio */}
         <div className="mb-8">
           <h2 className="text-lg font-semibold mb-4">Professional Bio</h2>
           <textarea
             rows={6}
             className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-2"
             value={editedData.raw_text || ''}
-            onChange={(e) => setEditedData({...editedData, raw_text: e.target.value})}
+            onChange={(e) => setEditedData({ ...editedData, raw_text: e.target.value })}
           />
-          <Button 
+          <Button
             variant="secondary"
             size="small"
             onClick={handleGenerateBio}
@@ -161,7 +176,7 @@ export default function Editor() {
           </Button>
         </div>
 
-        {/* Skills Section */}
+        {/* Skills */}
         <div>
           <h2 className="text-lg font-semibold mb-4">Skills</h2>
           <div className="flex flex-wrap gap-2 mb-4">
@@ -182,16 +197,154 @@ export default function Editor() {
           </div>
           <div className="flex mt-2 gap-2">
             <input
-            type="text"
-            value={newSkill}
-            onChange={(e) => setNewSkill(e.target.value)}
-            placeholder="Add a skill"
-            className="border px-2 py-1 rounded"
+              type="text"
+              value={newSkill}
+              onChange={(e) => setNewSkill(e.target.value)}
+              placeholder="Add a skill"
+              className="border px-2 py-1 rounded"
             />
             <Button onClick={handleAddSkill} type="button">
               Add
             </Button>
           </div>
+        </div>
+
+        {/* Work Experience */}
+        <div className="mt-8">
+          <h2 className="text-lg font-semibold mb-4">Work Experience</h2>
+          {editedData.work_experience.length > 0
+            ? editedData.work_experience.map((item, idx) => (
+              <div key={idx} className="mb-4 p-4 bg-gray-50 rounded">
+                <input
+                  type="text"
+                  value={item.job_title}
+                  placeholder="Job Title"
+                  onChange={e => handleExperienceChange(idx, 'job_title', e.target.value)}
+                  className="mb-2 w-full border rounded p-1"
+                />
+                <input
+                  type="text"
+                  value={item.employer}
+                  placeholder="Employer"
+                  onChange={e => handleExperienceChange(idx, 'employer', e.target.value)}
+                  className="mb-2 w-full border rounded p-1"
+                />
+                <input
+                  type="text"
+                  value={item.start_date}
+                  placeholder="Start Date"
+                  onChange={e => handleExperienceChange(idx, 'start_date', e.target.value)}
+                  className="mb-2 w-full border rounded p-1"
+                />
+                <input
+                  type="text"
+                  value={item.end_date}
+                  placeholder="End Date"
+                  onChange={e => handleExperienceChange(idx, 'end_date', e.target.value)}
+                  className="mb-2 w-full border rounded p-1"
+                />
+                <textarea
+                  value={item.description}
+                  placeholder="Description"
+                  rows={2}
+                  onChange={e => handleExperienceChange(idx, 'description', e.target.value)}
+                  className="w-full border rounded p-1"
+                />
+              </div>
+            )) : <p className="text-gray-500">No experience found.</p>
+          }
+        </div>
+
+        {/* Projects */}
+        <div className="mt-8">
+          <h2 className="text-lg font-semibold mb-4">Projects</h2>
+          {editedData.projects.length > 0
+            ? editedData.projects.map((proj, idx) => (
+              <div key={idx} className="mb-4 p-4 bg-gray-50 rounded">
+                <input
+                  type="text"
+                  value={proj.title}
+                  placeholder="Title"
+                  onChange={e => handleProjectChange(idx, 'title', e.target.value)}
+                  className="mb-2 w-full border rounded p-1"
+                />
+                <input
+                  type="text"
+                  value={proj.year}
+                  placeholder="Year"
+                  onChange={e => handleProjectChange(idx, 'year', e.target.value)}
+                  className="mb-2 w-full border rounded p-1"
+                />
+                <input
+                  type="text"
+                  value={proj.tech_stack}
+                  placeholder="Tech Stack"
+                  onChange={e => handleProjectChange(idx, 'tech_stack', e.target.value)}
+                  className="mb-2 w-full border rounded p-1"
+                />
+                <textarea
+                  value={proj.description}
+                  placeholder="Description"
+                  rows={2}
+                  onChange={e => handleProjectChange(idx, 'description', e.target.value)}
+                  className="w-full border rounded p-1"
+                />
+              </div>
+            )) : <p className="text-gray-500">No projects found.</p>
+          }
+        </div>
+
+        {/* Education */}
+        <div className="mt-8">
+          <h2 className="text-lg font-semibold mb-4">Education</h2>
+          {editedData.education.length > 0
+            ? editedData.education.map((edu, idx) => (
+              <div key={idx} className="mb-4 p-4 bg-gray-50 rounded">
+                <input
+                  type="text"
+                  value={edu.institution}
+                  placeholder="Institution"
+                  onChange={e => handleEducationChange(idx, 'institution', e.target.value)}
+                  className="mb-2 w-full border rounded p-1"
+                />
+                <input
+                  type="text"
+                  value={edu.degree}
+                  placeholder="Degree"
+                  onChange={e => handleEducationChange(idx, 'degree', e.target.value)}
+                  className="mb-2 w-full border rounded p-1"
+                />
+                <input
+                  type="text"
+                  value={edu.start_date}
+                  placeholder="Start Date"
+                  onChange={e => handleEducationChange(idx, 'start_date', e.target.value)}
+                  className="mb-2 w-full border rounded p-1"
+                />
+                <input
+                  type="text"
+                  value={edu.end_date}
+                  placeholder="End Date"
+                  onChange={e => handleEducationChange(idx, 'end_date', e.target.value)}
+                  className="mb-2 w-full border rounded p-1"
+                />
+                <input
+                  type="text"
+                  value={edu.major}
+                  placeholder="Major"
+                  onChange={e => handleEducationChange(idx, 'major', e.target.value)}
+                  className="mb-2 w-full border rounded p-1"
+                />
+                <input
+                  type="text"
+                  value={edu.gpa}
+                  placeholder="GPA"
+                  onChange={e => handleEducationChange(idx, 'gpa', e.target.value)}
+                  className="mb-2 w-full border rounded p-1"
+                />
+              </div>
+            )) : <p className="text-gray-500">No education found.</p>
+          }
         </div>
       </div>
 

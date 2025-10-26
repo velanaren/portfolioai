@@ -80,6 +80,76 @@ export default function MinimalTemplate({ data }) {
         </section>
       )}
 
+      {/* Work Experience Section */}
+{data.work_experience && data.work_experience.length > 0 && (
+  <section className="mb-8">
+    <h2 className="text-xl font-semibold text-gray-900 mb-3">Work Experience</h2>
+    <div className="space-y-6">
+      {data.work_experience.map((job, idx) => (
+        <div key={idx}>
+          <h3 className="font-semibold text-lg text-gray-800">
+            {job.job_title} at {job.employer}
+          </h3>
+          <p className="italic text-gray-600 mb-2">
+            {job.start_date} - {job.end_date || 'Present'}
+          </p>
+          <p className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+            {job.description}
+          </p>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{/* Projects Section */}
+{data.projects && data.projects.length > 0 && (
+  <section className="mb-8">
+    <h2 className="text-xl font-semibold text-gray-900 mb-3">Projects</h2>
+    <div className="space-y-6">
+      {data.projects.map((project, idx) => (
+        <div key={idx}>
+          <h3 className="font-semibold text-lg text-gray-800">
+            {project.title} {project.year && `(${project.year})`}
+          </h3>
+          {project.tech_stack && (
+            <p className="mb-1">
+              <strong>Tech Stack:</strong> {project.tech_stack}
+            </p>
+          )}
+          <p className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+            {project.description}
+          </p>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+{/* Education Section */}
+{data.education && data.education.length > 0 && (
+  <section className="mb-8">
+    <h2 className="text-xl font-semibold text-gray-900 mb-3">Education</h2>
+    <div className="space-y-6">
+      {data.education.map((edu, idx) => (
+        <div key={idx}>
+          <h3 className="font-semibold text-lg text-gray-800">
+            {edu.degree} &mdash; {edu.institution}
+          </h3>
+          <p className="italic text-gray-600 mb-2">
+            {edu.start_date} - {edu.end_date || 'Present'}
+          </p>
+          <p className="text-gray-700 leading-relaxed">
+            {edu.major && <span><strong>Major:</strong> {edu.major} </span>}
+            {edu.gpa && <span><strong>GPA:</strong> {edu.gpa}</span>}
+          </p>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+
       {/* Contact Section */}
       <section>
         <h2 className="text-lg font-semibold text-gray-900 mb-3">Contact</h2>

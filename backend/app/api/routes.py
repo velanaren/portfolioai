@@ -26,7 +26,9 @@ async def health_check():
         message="Service is running normally"
     )
 
-@router.post("/upload-resume", response_model=ParseResponse)
+# ... previous code ...
+
+@router.post("/upload-resume")
 async def upload_resume(file: UploadFile = File(...)):
     """
     Upload and parse resume file endpoint.
@@ -45,7 +47,6 @@ async def upload_resume(file: UploadFile = File(...)):
         file_size = 0
         file_contents = await file.read()
         file_size = len(file_contents)
-        
         if file_size > MAX_FILE_SIZE:
             raise HTTPException(
                 status_code=400,
@@ -64,6 +65,7 @@ async def upload_resume(file: UploadFile = File(...)):
 
         # Parse resume
         result = parse_resume(unique_filename)
+        print("API RETURNS:", result)  # For debugging
 
         # Delete temporary file
         os.remove(unique_filename)
@@ -75,23 +77,19 @@ async def upload_resume(file: UploadFile = File(...)):
             )
 
         # Construct response
-        return ParseResponse(
-            success=True,
-            data=result,
-            message="Resume parsed successfully"
-        )
+        return {
+            "success": True,
+            "data": result,
+            "message": "Resume parsed successfully"
+        }
 
     except HTTPException as he:
-        # Re-raise HTTP exceptions
         raise he
-
     except Exception as e:
-        # Handle unexpected errors
         raise HTTPException(
             status_code=500,
             detail=f"An error occurred while processing the file: {str(e)}"
         )
-
     finally:
         # Ensure temporary file is deleted in case of errors
         if 'unique_filename' in locals() and os.path.exists(unique_filename):
