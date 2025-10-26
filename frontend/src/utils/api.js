@@ -86,3 +86,37 @@ export async function generateCoverLetter(portfolioData, jobDescription) {
     throw error;
   }
 }
+
+export async function generateWorkExperienceDescription(workExpData) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/generate-work-experience-description`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(workExpData),
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Failed to generate work experience description");
+    return data;
+  } catch (error) {
+    console.error("Work experience generation error:", error);
+    throw error;
+  }
+}
+
+export async function generateProjectDescription(projectData) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/generate-project-description`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(projectData),
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Failed to generate project description");
+    return data;
+  } catch (error) {
+    console.error("Project description generation error:", error);
+    throw error;
+  }
+}

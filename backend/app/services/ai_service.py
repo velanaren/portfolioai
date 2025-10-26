@@ -91,6 +91,70 @@ def enhance_experience(experience_text: str) -> str:
     
     return experience_text.strip()
 
+
+def generate_work_experience_desc(job_title: str, employer: str, description: str) -> str:
+    """
+    Generate a clear work experience description using AI.
+    """
+    try:
+        prompt = f"""
+You are a professional career content writer. Given a work experience entry, rewrite the description to be clear, impactful, and professional.
+
+Job Title: {job_title}
+Employer: {employer}
+Current Description: {description}
+
+Rewrite the description clearly and concisely, highlighting achievements and responsibilities. Use bullet points or paragraphs as appropriate.
+"""
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {"role": "system", "content": "You write clear, professional work experience descriptions."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=300,
+            temperature=0.7,
+        )
+        generated_desc = response.choices[0].message.content.strip()
+        generated_desc = generated_desc.strip('"').strip("'")
+        return generated_desc
+    except Exception as e:
+        print(f"Groq API error on work experience description: {str(e)}")
+        return description or "Led development initiatives and delivered high-quality solutions."
+
+
+def generate_project_desc(title: str, year: str, tech_stack: str, description: str) -> str:
+    """
+    Generate project description using STAR format using AI.
+    """
+    try:
+        prompt = f"""
+You are a professional career writer skilled in STAR format. Given project details, write a project description in the STAR format (Situation, Task, Action, Result).
+
+Project Title: {title}
+Year: {year}
+Tech Stack: {tech_stack}
+Description: {description}
+
+Write a STAR format description emphasizing impact and results. Use clear sections for Situation, Task, Action, and Result.
+"""
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {"role": "system", "content": "You generate project descriptions in STAR format."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=400,
+            temperature=0.7,
+        )
+        generated_desc = response.choices[0].message.content.strip()
+        generated_desc = generated_desc.strip('"').strip("'")
+        return generated_desc
+    except Exception as e:
+        print(f"Groq API error on project description: {str(e)}")
+        return description or "Developed and delivered a successful project."
+
+        
 def generate_cover_letter(portfolio_data: Dict, job_description: str) -> str:
     """
     Generate customized cover letter using Groq AI.

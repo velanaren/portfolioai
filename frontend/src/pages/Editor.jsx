@@ -4,7 +4,7 @@ import Button from '../components/Button';
 import LoadingSpinner from '../components/LoadingSpinner';
 import MinimalTemplate from '../components/templates/MinimalTemplate';
 import ModernTemplate from '../components/templates/ModernTemplate';
-import { generateBio } from '../utils/api';
+import { generateBio, generateWorkExperienceDescription, generateProjectDescription } from '../utils/api';
 import { exportAsHTML } from '../utils/export';
 
 export default function Editor() {
@@ -32,7 +32,11 @@ export default function Editor() {
     projects: Array.isArray(resumeData.projects) ? resumeData.projects : [],
     education: Array.isArray(resumeData.education) ? resumeData.education : []
   });
-  const [generating, setGenerating] = useState(false);
+
+  const [generatingBio, setGeneratingBio] = useState(false);
+  const [generatingWorkExpIndex, setGeneratingWorkExpIndex] = useState(null);
+  const [generatingProjectIndex, setGeneratingProjectIndex] = useState(null);
+
   const [activeTemplate] = useState(templateName);
   const [skills, setSkills] = useState(editedData.skills || []);
   const [newSkill, setNewSkill] = useState('');
@@ -51,7 +55,7 @@ export default function Editor() {
   // AI Bio generator
   const handleGenerateBio = async () => {
     try {
-      setGenerating(true);
+      setGeneratingBio(true);
       const result = await generateBio(editedData);
       if (result.success) {
         setEditedData({
@@ -62,7 +66,7 @@ export default function Editor() {
     } catch (error) {
       console.error('Failed to generate bio:', error);
     } finally {
-      setGenerating(false);
+      setGeneratingBio(false);
     }
   };
 
@@ -82,23 +86,72 @@ export default function Editor() {
     setEditedData({ ...editedData, skills: updatedSkills });
   };
 
-  // Experience handlers (edit only, not add/remove for simplicity)
+  // Experience handlers
   const handleExperienceChange = (idx, field, value) => {
     const updated = [...editedData.work_experience];
     updated[idx][field] = value;
     setEditedData({ ...editedData, work_experience: updated });
   };
 
+  // Project handlers
   const handleProjectChange = (idx, field, value) => {
     const updated = [...editedData.projects];
     updated[idx][field] = value;
     setEditedData({ ...editedData, projects: updated });
   };
 
+  // Education handlers
   const handleEducationChange = (idx, field, value) => {
     const updated = [...editedData.education];
     updated[idx][field] = value;
     setEditedData({ ...editedData, education: updated });
+  };
+
+  // Generate AI for specific work experience description
+  const handleGenerateWorkExp = async (idx) => {
+    try {
+      setGeneratingWorkExpIndex(idx);
+      const workExp = editedData.work_experience[idx];
+      const context = {
+        job_title: workExp.job_title,
+        employer: workExp.employer,
+        description: workExp.description
+      };
+      const result = await generateWorkExperienceDescription(context);
+      if (result.success) {
+        const updated = [...editedData.work_experience];
+        updated[idx].description = result.description;
+        setEditedData({ ...editedData, work_experience: updated });
+      }
+    } catch (error) {
+      console.error('Failed to generate work experience description:', error);
+    } finally {
+      setGeneratingWorkExpIndex(null);
+    }
+  };
+
+  // Generate AI for specific project description in STAR format
+  const handleGenerateProjectDesc = async (idx) => {
+    try {
+      setGeneratingProjectIndex(idx);
+      const project = editedData.projects[idx];
+      const context = {
+        title: project.title,
+        year: project.year,
+        tech_stack: project.tech_stack,
+        description: project.description
+      };
+      const result = await generateProjectDescription(context);
+      if (result.success) {
+        const updated = [...editedData.projects];
+        updated[idx].description = result.description;
+        setEditedData({ ...editedData, projects: updated });
+      }
+    } catch (error) {
+      console.error('Failed to generate project description:', error);
+    } finally {
+      setGeneratingProjectIndex(null);
+    }
   };
 
   const handleExport = () => {
@@ -163,9 +216,9 @@ export default function Editor() {
             variant="secondary"
             size="small"
             onClick={handleGenerateBio}
-            disabled={generating}
+            disabled={generatingBio}
           >
-            {generating ? (
+            {generatingBio ? (
               <span className="flex items-center">
                 <LoadingSpinner className="w-4 h-4 mr-2" />
                 Generating...
@@ -250,6 +303,22 @@ export default function Editor() {
                   onChange={e => handleExperienceChange(idx, 'description', e.target.value)}
                   className="w-full border rounded p-1"
                 />
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={() => handleGenerateWorkExp(idx)}
+                  disabled={generatingWorkExpIndex === idx}
+                  className="mt-2"
+                >
+                  {generatingWorkExpIndex === idx ? (
+                    <span className="flex items-center">
+                      <LoadingSpinner className="w-4 h-4 mr-2" />
+                      Generating...
+                    </span>
+                  ) : (
+                    '✨ Generate with AI'
+                  )}
+                </Button>
               </div>
             )) : <p className="text-gray-500">No experience found.</p>
           }
@@ -289,6 +358,22 @@ export default function Editor() {
                   onChange={e => handleProjectChange(idx, 'description', e.target.value)}
                   className="w-full border rounded p-1"
                 />
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onClick={() => handleGenerateProjectDesc(idx)}
+                  disabled={generatingProjectIndex === idx}
+                  className="mt-2"
+                >
+                  {generatingProjectIndex === idx ? (
+                    <span className="flex items-center">
+                      <LoadingSpinner className="w-4 h-4 mr-2" />
+                      Generating...
+                    </span>
+                  ) : (
+                    '✨ Generate with AI'
+                  )}
+                </Button>
               </div>
             )) : <p className="text-gray-500">No projects found.</p>
           }

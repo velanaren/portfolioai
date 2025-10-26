@@ -1,11 +1,15 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Request
 import os
 import shutil
 from uuid import uuid4
 from ..services.parser import parse_resume
 from ..models.schemas import ParseResponse, HealthResponse
-from ..services.ai_service import generate_bio
-from ..services.ai_service import generate_cover_letter
+from ..services.ai_service import (
+    generate_bio,
+    generate_cover_letter,
+    generate_work_experience_desc,
+    generate_project_desc
+)
 
 
 
@@ -134,3 +138,31 @@ async def generate_cover_letter_endpoint(request: dict):
             status_code=500,
             detail=f"Failed to generate cover letter: {str(e)}"
         )
+# New endpoint for work experience description generation
+@router.post("/generate-work-experience-description")
+async def generate_work_experience_description(request: Request):
+    try:
+        data = await request.json()
+        # expects keys: job_title, employer, description
+        job_title = data.get("job_title", "")
+        employer = data.get("employer", "")
+        description = data.get("description", "")
+        generated_desc = generate_work_experience_desc(job_title, employer, description)
+        return {"success": True, "description": generated_desc, "message": "Work experience description generated"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate work experience description: {str(e)}")
+
+# New endpoint for project description generation in STAR format
+@router.post("/generate-project-description")
+async def generate_project_description(request: Request):
+    try:
+        data = await request.json()
+        # expects keys: title, year, tech_stack, description
+        title = data.get("title", "")
+        year = data.get("year", "")
+        tech_stack = data.get("tech_stack", "")
+        description = data.get("description", "")
+        generated_desc = generate_project_desc(title, year, tech_stack, description)
+        return {"success": True, "description": generated_desc, "message": "Project description generated"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate project description: {str(e)}")
