@@ -41,16 +41,17 @@ export function exportAsHTML(templateName, data) {
   }
   
   function generateMinimalHTML(data) {
-    const { personal, raw_text, skills } = data;
+    const { personal, raw_text, skills, work_experience, projects, education } = data;
     
     return `
   <div class="max-w-4xl mx-auto p-8 bg-white my-8 rounded-lg shadow">
     <!-- Header -->
     <header class="mb-8 border-b border-gray-200 pb-6">
-      <h1 class="text-4xl font-bold text-gray-900 mb-3">${personal.name || 'Your Name'}</h1>
+      <h1 class="text-4xl font-bold text-gray-900 mb-3">${personal?.name || 'Your Name'}</h1>
       <div class="text-gray-600 space-y-1 text-sm">
-        ${personal.email ? `<p>📧 <a href="mailto:${personal.email}" class="hover:text-blue-600">${personal.email}</a></p>` : ''}
-        ${personal.phone ? `<p>📞 ${personal.phone}</p>` : ''}
+        ${personal?.email ? `<p>📧 <a href="mailto:${personal.email}" class="hover:text-blue-600">${personal.email}</a></p>` : ''}
+        ${personal?.phone ? `<p>📞 ${personal.phone}</p>` : ''}
+        ${personal?.location ? `<p>📍 ${personal.location}</p>` : ''}
       </div>
     </header>
   
@@ -71,28 +72,98 @@ export function exportAsHTML(templateName, data) {
       </div>
     </section>
     ` : ''}
+
+    <!-- Work Experience -->
+    ${work_experience && work_experience.length > 0 ? `
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">Work Experience</h2>
+      <div class="space-y-6">
+        ${work_experience.map(job => `
+          <div>
+            <h3 class="font-semibold text-lg text-gray-800">
+              ${job.job_title} at ${job.employer}
+            </h3>
+            <p class="italic text-gray-600 mb-2">
+              ${job.start_date} - ${job.end_date || 'Present'}
+            </p>
+            <p class="whitespace-pre-wrap text-gray-700 leading-relaxed">
+              ${job.description}
+            </p>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+    ` : ''}
+
+    <!-- Projects -->
+    ${projects && projects.length > 0 ? `
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">Projects</h2>
+      <div class="space-y-6">
+        ${projects.map(project => `
+          <div>
+            <h3 class="font-semibold text-lg text-gray-800">
+              ${project.title} ${project.year ? `(${project.year})` : ''}
+            </h3>
+            ${project.tech_stack ? `
+            <p class="mb-1">
+              <strong>Tech Stack:</strong> ${project.tech_stack}
+            </p>
+            ` : ''}
+            <p class="whitespace-pre-wrap text-gray-700 leading-relaxed">
+              ${project.description}
+            </p>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+    ` : ''}
+
+    <!-- Education -->
+    ${education && education.length > 0 ? `
+    <section class="mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4">Education</h2>
+      <div class="space-y-6">
+        ${education.map(edu => `
+          <div>
+            <h3 class="font-semibold text-lg text-gray-800">
+              ${edu.degree} &mdash; ${edu.institution}
+            </h3>
+            <p class="italic text-gray-600 mb-2">
+              ${edu.start_date} - ${edu.end_date || 'Present'}
+            </p>
+            <p class="text-gray-700 leading-relaxed">
+              ${edu.major ? `<span><strong>Major:</strong> ${edu.major} </span>` : ''}
+              ${edu.gpa ? `<span><strong>GPA:</strong> ${edu.gpa}</span>` : ''}
+            </p>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+    ` : ''}
   
     <!-- Contact -->
     <section class="mt-8 pt-6 border-t border-gray-200">
       <h2 class="text-xl font-semibold text-gray-900 mb-3">Contact</h2>
       <div class="text-gray-600">
-        ${personal.email ? `<p>Email: <a href="mailto:${personal.email}" class="text-blue-600 hover:underline">${personal.email}</a></p>` : ''}
-        ${personal.phone ? `<p>Phone: ${personal.phone}</p>` : ''}
+        ${personal?.email ? `<p>Email: <a href="mailto:${personal.email}" class="text-blue-600 hover:underline">${personal.email}</a></p>` : ''}
+        ${personal?.phone ? `<p>Phone: ${personal.phone}</p>` : ''}
       </div>
     </section>
   </div>`;
   }
   
   function generateModernHTML(data) {
-    const { personal, raw_text, skills } = data;
+    const { personal, raw_text, skills, work_experience, projects, education } = data;
     
     return `
   <!-- Hero -->
   <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-20 text-center">
-    <h1 class="text-5xl font-bold mb-4">${personal.name || 'Your Name'}</h1>
+    <h1 class="text-5xl font-bold mb-4">${personal?.name || 'Your Name'}</h1>
     <div class="space-y-2 text-lg">
-      ${personal.email ? `<p>${personal.email}</p>` : ''}
-      ${personal.phone ? `<p>${personal.phone}</p>` : ''}
+      ${personal?.email ? `<p>📧 ${personal.email}</p>` : ''}
+      ${personal?.phone ? `<p>📱 ${personal.phone}</p>` : ''}
+      ${personal?.location ? `<p>📍 ${personal.location}</p>` : ''}
     </div>
   </div>
   
@@ -117,13 +188,82 @@ export function exportAsHTML(templateName, data) {
       </div>
     </div>
     ` : ''}
+
+    <!-- Work Experience -->
+    ${work_experience && work_experience.length > 0 ? `
+    <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6">💼 Work Experience</h2>
+      <div class="space-y-6">
+        ${work_experience.map(job => `
+          <div>
+            <h3 class="font-semibold text-xl text-gray-900">
+              ${job.job_title} at ${job.employer}
+            </h3>
+            <p class="italic text-gray-500 mb-2">
+              ${job.start_date} - ${job.end_date || 'Present'}
+            </p>
+            <p class="whitespace-pre-wrap text-gray-700 leading-relaxed">
+              ${job.description}
+            </p>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    ` : ''}
+
+    <!-- Projects -->
+    ${projects && projects.length > 0 ? `
+    <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6">🚀 Projects</h2>
+      <div class="space-y-6">
+        ${projects.map(project => `
+          <div>
+            <h3 class="font-semibold text-xl text-gray-900">
+              ${project.title} ${project.year ? `(${project.year})` : ''}
+            </h3>
+            ${project.tech_stack ? `
+            <p class="mb-1 font-medium text-gray-800">
+              Tech Stack: ${project.tech_stack}
+            </p>
+            ` : ''}
+            <p class="whitespace-pre-wrap text-gray-700 leading-relaxed">
+              ${project.description}
+            </p>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    ` : ''}
+
+    <!-- Education -->
+    ${education && education.length > 0 ? `
+    <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6">🎓 Education</h2>
+      <div class="space-y-6">
+        ${education.map(edu => `
+          <div>
+            <h3 class="font-semibold text-xl text-gray-900">
+              ${edu.degree} &mdash; ${edu.institution}
+            </h3>
+            <p class="italic text-gray-500 mb-2">
+              ${edu.start_date} - ${edu.end_date || 'Present'}
+            </p>
+            <p class="text-gray-700 leading-relaxed">
+              ${edu.major ? `<span><strong>Major:</strong> ${edu.major} </span>` : ''}
+              ${edu.gpa ? `<span><strong>GPA:</strong> ${edu.gpa}</span>` : ''}
+            </p>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    ` : ''}
   
     <!-- Contact Card -->
     <div class="bg-white rounded-lg shadow-lg p-8 text-center">
       <h2 class="text-3xl font-bold text-gray-900 mb-4">📧 Let's Connect</h2>
       <div class="text-gray-700 space-y-2 text-lg">
-        ${personal.email ? `<p><a href="mailto:${personal.email}" class="text-blue-600 hover:underline">${personal.email}</a></p>` : ''}
-        ${personal.phone ? `<p>${personal.phone}</p>` : ''}
+        ${personal?.email ? `<p><a href="mailto:${personal.email}" class="text-blue-600 hover:underline">${personal.email}</a></p>` : ''}
+        ${personal?.phone ? `<p>${personal.phone}</p>` : ''}
       </div>
     </div>
   </div>`;

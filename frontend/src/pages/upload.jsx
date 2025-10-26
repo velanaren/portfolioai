@@ -169,27 +169,7 @@ export default function Upload() {
               <p><span className="font-medium text-gray-700">Experience:</span> {parsedData.work_experience.length} entries</p>
               <p><span className="font-medium text-gray-700">Projects:</span> {parsedData.projects.length} projects</p>
               <p><span className="font-medium text-gray-700">Education:</span> {parsedData.education.length} entries</p>
-              {parsedData.work_experience.length > 0 && (
-                <>
-                  <h4 className="font-semibold mt-4">Experience Sample:</h4>
-                  <pre className="text-xs bg-gray-100 p-2 rounded">
-                    {JSON.stringify(parsedData.work_experience[0], null, 2)}
-                  </pre>
-                </>
-              )}
-              {parsedData.education.length > 0 && (
-                <>
-                  <h4 className="font-semibold mt-4">Education Sample:</h4>
-                  <pre className="text-xs bg-gray-100 p-2 rounded">
-                    {JSON.stringify(parsedData.education[0], null, 2)}
-                  </pre>
-                </>
-              )}
             </div>
-            <details>
-              <summary className="cursor-pointer mt-4">Show Full Parsed Data (DEV)</summary>
-              <pre className="text-xs bg-gray-100 p-2 rounded">{JSON.stringify(parsedData, null, 2)}</pre>
-            </details>
           </div>
 
           <Button
